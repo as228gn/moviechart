@@ -57,25 +57,6 @@ export class MovieController {
   }
 
   /**
-   * A query that gives you a specific film based on an id.
-   *
-   * @param {number} id - The id of the film to retrieve.
-   * @returns {object} - The movie.
-   */
-  async getMovieById (id) {
-    try {
-      const [result] = await db.query('SELECT * FROM film WHERE film_id = ?', [id])
-      const movie = result[0]
-      if (!movie) {
-        throw new Error(`No movie found with id: ${id}`)
-      }
-      return movie
-    } catch (error) {
-      throw new Error(error.message)
-    }
-  }
-
-  /**
    * A query that gives you the genre for a specific movie.
    *
    * @param {number} id - The id of the movie to retrieve the genre from.
@@ -92,40 +73,6 @@ export class MovieController {
       return genre
     } catch (error) {
       throw new Error('Could not fetch genre: ' + error.message)
-    }
-  }
-
-  /**
-   * A query that gives you all the actors.
-   *
-   * @returns {object} - The actors
-   */
-  async getActors () {
-    try {
-      const [actors] = await db.query('SELECT * FROM actor')
-      return actors
-    } catch (error) {
-      throw new Error('Could not fetch actors: ' + error.message)
-    }
-  }
-
-  /**
-   * Retrieves a list of actors associated with a specific movie. This function queries the database to fetch the actors who are associated with a given movie (identified by its `id`). It returns an array of actors that appear in the movie,including their `actor_id`, `first_name`, and `last_name`.
-   *
-   * @param {number} id - The ID of the movie for which to fetch the actors.
-   * @returns {Promise<Array>} A promise that resolves to an array of actor objects, each containing `actor_id`, `first_name`, and `last_name`.
-   * @throws {Error} If there is an issue with the SQL query or database connection.
-   */
-  async getActorsForMovie (id) {
-    try {
-      const [actors] = await db.query(`
-        SELECT a.actor_id, a.first_name, a.last_name
-        FROM actor a
-        JOIN film_actor fa ON fa.actor_id = a.actor_id
-        WHERE fa.film_id = ?`, [id])
-      return actors
-    } catch (error) {
-      throw new Error('Could not fetch actors: ' + error.message)
     }
   }
 

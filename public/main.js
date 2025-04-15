@@ -3,11 +3,15 @@
  *
  * @returns {Promise<void>} A Promise that resolves when the chart is rendered.
  */
-async function fetchMovieAndGenre() {
+async function fetchMovieAndGenre () {
+  const rating = document.getElementById('ratingFilter').value
+  const minRentalCount = parseInt(document.getElementById('rentalSlider').value)
+
   const query = `
-   query MoviesByCategory {
-    moviesByCategory {
+   query MoviesByCategory($rating: String) {
+    moviesByCategory(rating: $rating) {
      moviesByCategory {
+     averageRentalCount
       genre {
         name
       }
@@ -23,7 +27,7 @@ async function fetchMovieAndGenre() {
   const res = await fetch('/graphql', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query })
+    body: JSON.stringify({ query, variables: { rating } })
   })
 
   const { data } = await res.json()
@@ -34,8 +38,9 @@ async function fetchMovieAndGenre() {
   }
 
   const categories = data.moviesByCategory.moviesByCategory
-  const x = categories.map(cat => cat.genre?.name ?? 'Unknown')
-  const y = categories.map(cat => cat.movies.length)
+  const filteredCategories = categories.filter(cat => cat.averageRentalCount >= minRentalCount) // Filtrera baserat på slidervärde
+  const x = filteredCategories.map(cat => cat.genre?.name ?? 'Unknown')
+  const y = filteredCategories.map(cat => cat.movies.length)
 
   const chartData = [
     {
@@ -58,14 +63,15 @@ async function fetchMovieAndGenre() {
     if (selectedCategory) {
       const movieTitles = selectedCategory.movies.map(movie => movie.title)
 
-      // Visa titlar på sidan
       displayMovieTitles(movieTitles)
     }
   })
 }
 
 /**
+ * Displays a list of movie titles in the HTML element with the ID 'movieList'. This function clears the existing content and appends a list item for each movie title.
  *
+ * @param {string[]} movieTitles - An array of movie titles to be displayed. Each title will be added as a separate list item in the movie list.
  */
 function displayMovieTitles (movieTitles) {
   const movieList = document.getElementById('movieList')
@@ -77,5 +83,11 @@ function displayMovieTitles (movieTitles) {
     movieList.appendChild(listItem)
   })
 }
+
+document.getElementById('ratingFilter').addEventListener('change', fetchMovieAndGenre)
+document.getElementById('rentalSlider').addEventListener('input', () => {
+  document.getElementById('sliderValue').textContent = document.getElementById('rentalSlider').value
+  fetchMovieAndGenre()
+})
 
 fetchMovieAndGenre()

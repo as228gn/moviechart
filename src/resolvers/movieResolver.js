@@ -13,110 +13,53 @@ const controller = new MovieController()
 export const movieResolver = {
   Query: {
     /**
-     * Fetches a list of movies filtered by genre or rating.
+     * Fetches movies grouped by their genre and optionally filtered by rating. It calculates the average rental count for each genre and returns a list of genres with their associated movies and the average rental count.
      *
-     * @async
      * @param {object} _ - Placeholder for the root resolver (not used).
      * @param {object} args - The arguments for the query.
-     * @param {string} [args.genreName] - Optional genre filter.
-     * @param {number} [args.rating] - Optional rating filter.
-     * @param {number} [args.limit=100] - The number of movies to return. Defaults to 100.
-     * @param {number} [args.offset=0] - The number of movies to skip from the beginning of the result set.
-     * @returns {Promise<Array>} List of movies that match the filters.
+     * @param {string} [args.rating] - Optional rating filter. If provided, filters movies by the given rating.
+     * @returns {Promise<object>} - An object containing the list of movies grouped by category.
      */
-    movies: async (_, { genreName, rating, limit = 100, offset = 0 }) => {
+    moviesByCategory: async (_, { rating }) => {
       const filters = {}
-
-      if (genreName) {
-        filters.genreName = genreName
-      }
-
       if (rating) {
         filters.rating = rating
       }
-
-      const movies = await controller.getMovies(filters, limit + 1, offset)
-
-      const hasMore = movies.length > limit
-      if (hasMore) movies.pop()
-
-      for (const movie of movies) {
-        const [actors, genre, rentalCount] = await Promise.all([
-          controller.getActorsForMovie(movie.film_id),
-          controller.getGenreForMovie(movie.film_id),
-          controller.getRentalCountForMovie(movie.film_id)
-        ])
-        movie.actors = actors
-        movie.genre = genre
-        movie.rentalCount = rentalCount
-      }
-
-      return { movies, hasMore }
-    },
-
-    /**
-     * Fetches a single movie by its ID along with its actors, genre, and rental count.
-     *
-     * @async
-     * @param {object} _ - Placeholder for the root resolver (not used).
-     * @param {object} args - The arguments for the query.
-     * @param {string} args.id - The ID of the movie to fetch.
-     * @returns {Promise<object>} The movie object with additional details (actors, genre, rental count).
-     */
-    movie: async (_, { id }) => {
-      const movie = await controller.getMovieById(id)
-      const actors = await controller.getActorsForMovie(id)
-      const genres = await controller.getGenreForMovie(id)
-      const rentalCount = await controller.getRentalCountForMovie(id)
-
-      movie.actors = actors
-      movie.genre = genres
-      movie.rentalCount = rentalCount
-      return movie
-    },
-
-    /**
-     * Fetches all actors.
-     *
-     * @async
-     * @returns {Promise<Array>} A list of all actors.
-     */
-    actors: async () => {
-      return await controller.getActors()
-    },
-
-    /**
-     * Resolver for fetching all movies grouped by their genre.
-     *
-     * @returns {Promise<object>} An object with a single key `moviesByCategory`, which contains an array of genre groups.
-     */
-    moviesByCategory: async () => {
-      const movies = await controller.getMovies({}, 1000, 0)
+      const movies = await controller.getMovies(filters, 1000, 0)
       const groupedByCategory = {}
 
       for (const movie of movies) {
         const genre = await controller.getGenreForMovie(movie.film_id)
+        const rentalCount = await controller.getRentalCountForMovie(movie.film_id)
 
         if (!genre) continue
 
         movie.genre = genre // Add genre in movie
+        movie.rentalCount = rentalCount
 
         const genreName = genre.name
 
         if (!groupedByCategory[genreName]) {
           groupedByCategory[genreName] = {
             genre,
-            movies: []
+            movies: [],
+            totalRentals: 0
           }
         }
 
         groupedByCategory[genreName].movies.push(movie)
+        groupedByCategory[genreName].totalRentals += rentalCount
       }
+
+      const result = Object.values(groupedByCategory).map(group => ({
+        genre: group.genre,
+        movies: group.movies,
+        averageRentalCount: group.totalRentals / group.movies.length
+      }))
 
       return {
-        moviesByCategory: Object.values(groupedByCategory)
+        moviesByCategory: result
       }
     }
-
   }
 }

@@ -7,9 +7,21 @@
 </head>
 <body>
   <h1>Movies by Genre</h1>
+  <select id="ratingFilter">
+    <option value="">Select Rating</option>
+    <option value="G">G</option>
+    <option value="PG">PG</option>
+    <option value="PG-13">PG-13</option>
+    <option value="R">R</option>
+    <option value="NC-17">NC-17</option>
+  </select>
+  <div>
+    <label for="rentalSlider">Min. Average Rental Count:</label>
+    <input type="range" id="rentalSlider" min="10" max="20" step="1" value="10" />
+    <span id="sliderValue">10</span>
+  </div>
   <div id="barChart"></div>
   <div id="movieList"></div>
-
   <script type="module" src="/main.js"></script>
 </body>
 </html>
