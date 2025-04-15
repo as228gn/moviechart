@@ -9,7 +9,6 @@ const controller = new MovieController()
  * @property {Function} Query.movies - Resolves the query to fetch movies based on optional filters (genreName, rating).
  * @property {Function} Query.movie - Resolves the query to fetch a single movie by its ID.
  * @property {Function} Query.actors - Resolves the query to fetch all actors.
- * @property {object} Mutation - Contains mutation resolvers for creating, deleting, and updating movies.
  */
 export const movieResolver = {
   Query: {
@@ -84,6 +83,37 @@ export const movieResolver = {
      */
     actors: async () => {
       return await controller.getActors()
+    },
+
+    /**
+     *
+     */
+    moviesByCategory: async () => {
+      const movies = await controller.getMovies({}, 1000, 0)
+      const groupedByCategory = {}
+
+      for (const movie of movies) {
+        const genre = await controller.getGenreForMovie(movie.film_id)
+
+        if (!genre) continue
+
+        movie.genre = genre // Lägg till genren i movie
+
+        const genreName = genre.name
+
+        if (!groupedByCategory[genreName]) {
+          groupedByCategory[genreName] = {
+            genre,
+            movies: []
+          }
+        }
+
+        groupedByCategory[genreName].movies.push(movie)
+      }
+
+      return {
+        moviesByCategory: Object.values(groupedByCategory)
+      }
     }
 
   }

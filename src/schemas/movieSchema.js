@@ -5,6 +5,7 @@ export const movieTypeDefs = gql`
     movies(genreName: String, rating: String, limit: Int = 100, offset: Int = 0): MoviePage!
     movie(id: ID!): Movie
     actors: [Actor!]!
+    moviesByCategory: MoviesByCategory!
   }
 
 type Movie {
@@ -21,6 +22,15 @@ type Movie {
   type MoviePage {
     movies: [Movie!]!
     hasMore: Boolean!
+  }
+  
+   type MoviesByCategory {
+    moviesByCategory: [MovieCategory!]!
+  }
+
+    type MovieCategory {
+    genre: Genre!
+    movies: [Movie!]!
   }
 
   type Actor {
