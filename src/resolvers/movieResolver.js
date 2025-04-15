@@ -86,7 +86,9 @@ export const movieResolver = {
     },
 
     /**
+     * Resolver for fetching all movies grouped by their genre.
      *
+     * @returns {Promise<object>} An object with a single key `moviesByCategory`, which contains an array of genre groups.
      */
     moviesByCategory: async () => {
       const movies = await controller.getMovies({}, 1000, 0)
@@ -97,7 +99,7 @@ export const movieResolver = {
 
         if (!genre) continue
 
-        movie.genre = genre // Lägg till genren i movie
+        movie.genre = genre // Add genre in movie
 
         const genreName = genre.name
 

@@ -10,10 +10,6 @@ app.use(express.static('public'))
 
 app.use(express.json())
 
-// ...graphql-server setup
-
-
-// Anslut till databasen
 db.getConnection()
   .then(() => console.log('Database connected successfully!'))
   .catch((err) => {
@@ -33,7 +29,6 @@ await serverApollo.start()
 // Koppla Apollo till Express
 app.use('/graphql', expressMiddleware(serverApollo))
 
-// Starta servern
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`Server ready at http://localhost:${PORT}/graphql`)
