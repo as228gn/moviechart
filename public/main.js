@@ -3,23 +3,12 @@
  *
  * @returns {Promise<void>} A Promise that resolves when the chart is rendered.
  */
-async function fetchMovieAndGenre () {
-  const rating = document.getElementById('ratingFilter').value
-  const minRentalCount = parseInt(document.getElementById('rentalSlider').value)
-
+async function fetchMovieAndGenre (rating) {
   const query = `
-   query MoviesByCategory($rating: String) {
-    moviesByCategory(rating: $rating) {
-     moviesByCategory {
-     averageRentalCount
-      genre {
-        name
-      }
-      movies {
-        film_id
-        title
-      }
-    }
+ query MovieCountsByGenre($rating: String) {
+  movieCountsByGenre(rating: $rating) {
+    count
+    genre
   }
 }
   `
@@ -37,15 +26,13 @@ async function fetchMovieAndGenre () {
     return
   }
 
-  const categories = data.moviesByCategory.moviesByCategory
-  const filteredCategories = categories.filter(cat => cat.averageRentalCount >= minRentalCount) // Filtrera baserat på slidervärde
-  const x = filteredCategories.map(cat => cat.genre?.name ?? 'Unknown')
-  const y = filteredCategories.map(cat => cat.movies.length)
+  const genres = data.movieCountsByGenre.map(item => item.genre ?? 'Unknown')
+  const counts = data.movieCountsByGenre.map(item => item.count)
 
   const chartData = [
     {
-      x,
-      y,
+      x: genres,
+      y: counts,
       type: 'bar',
       marker: {
         color: 'orange'
@@ -55,17 +42,6 @@ async function fetchMovieAndGenre () {
 
   // eslint-disable-next-line no-undef
   Plotly.newPlot('barChart', chartData)
-  document.getElementById('barChart').on('plotly_click', function (eventData) {
-    const clickedData = eventData.points[0]
-    const genre = clickedData.x
-    const selectedCategory = categories.find(cat => cat.genre.name === genre)
-
-    if (selectedCategory) {
-      const movieTitles = selectedCategory.movies.map(movie => movie.title)
-
-      displayMovieTitles(movieTitles)
-    }
-  })
 }
 
 /**
@@ -84,7 +60,11 @@ function displayMovieTitles (movieTitles) {
   })
 }
 
-document.getElementById('ratingFilter').addEventListener('change', fetchMovieAndGenre)
+document.getElementById('ratingFilter').addEventListener('change', (event) => {
+  const selectedRating = event.target.value
+  fetchMovieAndGenre(selectedRating)
+})
+
 document.getElementById('rentalSlider').addEventListener('input', () => {
   document.getElementById('sliderValue').textContent = document.getElementById('rentalSlider').value
   fetchMovieAndGenre()

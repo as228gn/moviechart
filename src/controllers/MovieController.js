@@ -12,42 +12,29 @@ export class MovieController {
   /**
    * Retrieves movies from the database based on optional filters (genre and rating). This function constructs a dynamic SQL query to fetch movies from the database, with optional filters for genre and rating. If either of the filters is provided, the query is modified to include those conditions.
    *
-   * @param {object} params - The parameters object containing optional filter values.
-   * @param {string} [params.genreName] - The name of the genre to filter movies by.
-   * @param {number} [params.rating] - The rating to filter movies by.
-   * @param {number} limit - The number of movies to return. Defaults to 100.
-   * @param {number} offset - The number of movies to skip from the beginning of the result set.
+   * @param {string} rating - The rating to filter movies by.
    * @returns {Promise<Array>} A promise that resolves to an array of movies that match the filters.
    * @throws {Error} If there is an issue with the SQL query or database connection.
    */
-  async getMovies ({ genreName, rating }, limit = 100, offset = 0) {
+  async getMovies (filter = {}) {
     try {
       let query = `
-    SELECT f.film_id, f.title, f.description, f.release_year, f.rating 
-    FROM film f
-    JOIN film_category fc ON f.film_id = fc.film_id
-    JOIN category c ON fc.category_id = c.category_id
-  `
+        SELECT c.name AS genre, COUNT(*) AS count
+        FROM film f
+        JOIN film_category fc ON f.film_id = fc.film_id
+        JOIN category c ON fc.category_id = c.category_id
+      `
+
       const params = []
-      // Add filter for genre if genre exists
-      if (genreName) {
-        query += ' WHERE c.name = ?'
-        params.push(genreName)
+      // Om det finns ett ratingfilter, lägg till WHERE-klausul
+      if (filter.rating && filter.rating !== 'All') {
+        query += '  WHERE f.rating = ?'
+        params.push(filter.rating)
       }
 
-      // Add filter for rating if rating exists
-      if (rating) {
-        if (params.length > 0) {
-          query += ' AND f.rating = ?'
-        } else {
-          query += ' WHERE f.rating = ?'
-        }
-        params.push(rating)
-      }
-
-      query += ' ORDER BY f.film_id LIMIT ? OFFSET ?'
-      params.push(limit)
-      params.push(offset)
+      query += `
+        GROUP BY c.name
+      `
 
       const [movies] = await db.query(query, params)
       return movies

@@ -3,6 +3,7 @@ import gql from 'graphql-tag'
 export const movieTypeDefs = gql`
  type Query {
     moviesByCategory(rating: String): MoviesByCategory!
+    movieCountsByGenre(rating: String): [GenreCount]
   }
 
 type Movie {
@@ -27,4 +28,9 @@ type Movie {
     category_id: ID!
     name: String
   }
+
+  type GenreCount {
+  genre: String!
+  count: Int!
+}
   `

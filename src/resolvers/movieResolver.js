@@ -60,6 +60,25 @@ export const movieResolver = {
       return {
         moviesByCategory: result
       }
+    },
+
+    movieCountsByGenre: async (_, { rating }) => {
+      try {
+        const filter = {}
+        if (rating) {
+          filter.rating = rating
+        }
+        const movies = await controller.getMovies(filter)
+
+        // Returnera resultatet från getMovies
+        return movies.map(movie => ({
+          genre: movie.genre,
+          count: movie.count
+        }))
+      } catch (error) {
+        console.error(error)
+        throw new Error('Failed to fetch movie counts by genre')
+      }
     }
   }
 }
