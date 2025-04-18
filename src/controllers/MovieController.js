@@ -12,7 +12,7 @@ export class MovieController {
   /**
    * Retrieves movies from the database based on optional filters (genre and rating). This function constructs a dynamic SQL query to fetch movies from the database, with optional filters for genre and rating. If either of the filters is provided, the query is modified to include those conditions.
    *
-   * @param {string} rating - The rating to filter movies by.
+   * @param {string} filter - The rating to filter movies by.
    * @returns {Promise<Array>} A promise that resolves to an array of movies that match the filters.
    * @throws {Error} If there is an issue with the SQL query or database connection.
    */
@@ -24,9 +24,7 @@ export class MovieController {
         JOIN film_category fc ON f.film_id = fc.film_id
         JOIN category c ON fc.category_id = c.category_id
       `
-
       const params = []
-      // Om det finns ett ratingfilter, lägg till WHERE-klausul
       if (filter.rating && filter.rating !== 'All') {
         query += '  WHERE f.rating = ?'
         params.push(filter.rating)
@@ -38,6 +36,41 @@ export class MovieController {
 
       const [movies] = await db.query(query, params)
       return movies
+    } catch (error) {
+      throw new Error('Could not fetch movies: ' + error.message)
+    }
+  }
+
+  async getTitles(filter = {}) {
+    try {
+      let query = `
+        SELECT f.title
+        FROM film f
+        JOIN film_category fc ON f.film_id = fc.film_id
+        JOIN category c ON fc.category_id = c.category_id
+      `
+
+      const conditions = []
+      const params = []
+
+      if (filter.genre && filter.genre !== 'All') {
+        conditions.push('c.name = ?')
+        params.push(filter.genre)
+      }
+
+      if (filter.rating && filter.rating !== 'All') {
+        conditions.push('f.rating = ?')
+        params.push(filter.rating)
+      }
+
+      if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ')
+      }
+
+      query += ' ORDER BY f.title ASC'
+
+      const [movies] = await db.query(query, params)
+      return movies.map(movie => movie.title)
     } catch (error) {
       throw new Error('Could not fetch movies: ' + error.message)
     }

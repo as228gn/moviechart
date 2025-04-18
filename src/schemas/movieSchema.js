@@ -4,6 +4,7 @@ export const movieTypeDefs = gql`
  type Query {
     moviesByCategory(rating: String): MoviesByCategory!
     movieCountsByGenre(rating: String): [GenreCount]
+    movieTitles(rating: String, genre: String): [String!]!
   }
 
 type Movie {

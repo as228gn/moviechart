@@ -3,6 +3,9 @@
  *
  * @returns {Promise<void>} A Promise that resolves when the chart is rendered.
  */
+
+let selectedRating = null
+
 async function fetchMovieAndGenre (rating) {
   const query = `
  query MovieCountsByGenre($rating: String) {
@@ -42,8 +45,37 @@ async function fetchMovieAndGenre (rating) {
 
   // eslint-disable-next-line no-undef
   Plotly.newPlot('barChart', chartData)
+
+  document.getElementById('barChart').on('plotly_click', function (data) {
+    const point = data.points[0]
+    const genre = point.x
+
+    getTitles(genre, selectedRating)
+  })
 }
 
+async function getTitles (genre, rating) {
+  const query = `
+query MovieCountsByGenre($genre: String, $rating: String) {
+  movieTitles(genre: $genre, rating: $rating)
+}
+  `
+
+  const res = await fetch('/graphql', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, variables: { genre, rating } })
+  })
+
+  const { data } = await res.json()
+
+  if (data.errors) {
+    console.error('GraphQL Error:', data.errors)
+    return
+  }
+
+  displayMovieTitles(data)
+}
 /**
  * Displays a list of movie titles in the HTML element with the ID 'movieList'. This function clears the existing content and appends a list item for each movie title.
  *
@@ -53,7 +85,7 @@ function displayMovieTitles (movieTitles) {
   const movieList = document.getElementById('movieList')
   movieList.textContent = ''
 
-  movieTitles.forEach(title => {
+  movieTitles.movieTitles.forEach(title => {
     const listItem = document.createElement('li')
     listItem.textContent = title
     movieList.appendChild(listItem)
@@ -61,7 +93,7 @@ function displayMovieTitles (movieTitles) {
 }
 
 document.getElementById('ratingFilter').addEventListener('change', (event) => {
-  const selectedRating = event.target.value
+  selectedRating = event.target.value
   fetchMovieAndGenre(selectedRating)
 })
 

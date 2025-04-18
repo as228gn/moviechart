@@ -79,6 +79,26 @@ export const movieResolver = {
         console.error(error)
         throw new Error('Failed to fetch movie counts by genre')
       }
+    },
+
+    movieTitles: async (_, { rating, genre }) => {
+      try {
+        const filter = {}
+
+        if (rating && rating !== 'All') {
+          filter.rating = rating
+        }
+
+        if (genre && genre !== 'All') {
+          filter.genre = genre
+        }
+
+        const movies = await controller.getTitles(filter)
+        return movies
+      } catch (error) {
+        console.error(error)
+        throw new Error('Failed to fetch movie titles')
+      }
     }
   }
 }
