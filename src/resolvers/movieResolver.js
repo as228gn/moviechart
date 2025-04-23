@@ -12,56 +12,16 @@ const controller = new MovieController()
  */
 export const movieResolver = {
   Query: {
+
     /**
-     * Fetches movies grouped by their genre and optionally filtered by rating. It calculates the average rental count for each genre and returns a list of genres with their associated movies and the average rental count.
+     * GraphQL resolver for fetching the number of movies grouped by genre, optionally filtered by rating. Calls the controller to retrieve aggregated movie data and formats the result for the GraphQL response.
      *
-     * @param {object} _ - Placeholder for the root resolver (not used).
-     * @param {object} args - The arguments for the query.
-     * @param {string} [args.rating] - Optional rating filter. If provided, filters movies by the given rating.
-     * @returns {Promise<object>} - An object containing the list of movies grouped by category.
+     * @param {object} _ - The parent resolver (not used).
+     * @param {object} args - The arguments passed to the resolver.
+     * @param {string} [args.rating] - Optional rating filter (e.g., "PG", "R", "G"). If omitted, includes all ratings.
+     * @returns {Promise<Array<{ genre: string, count: number }>>} A promise that resolves to an array of objects, each containing a movie genre and the count of movies in that genre.
+     * @throws {Error} Throws an error if the data fetch fails.
      */
-    moviesByCategory: async (_, { rating }) => {
-      const filters = {}
-      if (rating) {
-        filters.rating = rating
-      }
-      const movies = await controller.getMovies(filters, 1000, 0)
-      const groupedByCategory = {}
-
-      for (const movie of movies) {
-        const genre = await controller.getGenreForMovie(movie.film_id)
-        const rentalCount = await controller.getRentalCountForMovie(movie.film_id)
-
-        if (!genre) continue
-
-        movie.genre = genre // Add genre in movie
-        movie.rentalCount = rentalCount
-
-        const genreName = genre.name
-
-        if (!groupedByCategory[genreName]) {
-          groupedByCategory[genreName] = {
-            genre,
-            movies: [],
-            totalRentals: 0
-          }
-        }
-
-        groupedByCategory[genreName].movies.push(movie)
-        groupedByCategory[genreName].totalRentals += rentalCount
-      }
-
-      const result = Object.values(groupedByCategory).map(group => ({
-        genre: group.genre,
-        movies: group.movies,
-        averageRentalCount: group.totalRentals / group.movies.length
-      }))
-
-      return {
-        moviesByCategory: result
-      }
-    },
-
     movieCountsByGenre: async (_, { rating }) => {
       try {
         const filter = {}
@@ -81,6 +41,16 @@ export const movieResolver = {
       }
     },
 
+    /**
+     * GraphQL resolver for fetching a list of movie titles, optionally filtered by genre and/or rating. Delegates the filtering logic to the controller's getTitles function.
+     *
+     * @param {object} _ - The parent resolver (unused in this context).
+     * @param {object} args - The arguments provided to the resolver.
+     * @param {string} [args.rating] - Optional filter for movie rating (e.g., "PG", "R"). If "All" or not provided, no rating filter is applied.
+     * @param {string} [args.genre] - Optional filter for movie genre (e.g., "Action", "Comedy"). If "All" or not provided, no genre filter is applied.
+     * @returns {Promise<string[]>} A promise that resolves to an array of movie title strings.
+     * @throws {Error} Throws an error if the titles could not be fetched.
+     */
     movieTitles: async (_, { rating, genre }) => {
       try {
         const filter = {}
@@ -98,6 +68,25 @@ export const movieResolver = {
       } catch (error) {
         console.error(error)
         throw new Error('Failed to fetch movie titles')
+      }
+    },
+
+    averageRentalCount: async (_, { rating }) => {
+      try {
+        const filter = {}
+        if (rating && rating !== 'All') {
+          filter.rating = rating
+        }
+
+        const averageRentalCounts = await controller.getAverageRentalCount(filter)
+
+        return averageRentalCounts.map(item => ({
+          genre: item.genre,
+          averageRentalCount: item.average_rental_count
+        }))
+      } catch (error) {
+        console.error(error)
+        throw new Error('Failed to fetch average rental counts by genre')
       }
     }
   }

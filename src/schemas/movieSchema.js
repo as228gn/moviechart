@@ -2,36 +2,18 @@ import gql from 'graphql-tag'
 
 export const movieTypeDefs = gql`
  type Query {
-    moviesByCategory(rating: String): MoviesByCategory!
     movieCountsByGenre(rating: String): [GenreCount]
     movieTitles(rating: String, genre: String): [String!]!
-  }
-
-type Movie {
-    film_id: ID
-    title: String!
-    rating: String
-    rentalCount: Int
-    genre: Genre
-  }
-  
-   type MoviesByCategory {
-    moviesByCategory: [MovieCategory!]!
-  }
-
-    type MovieCategory {
-    genre: Genre!
-    movies: [Movie!]!
-    averageRentalCount: Float!
-  }
-
-  type Genre {
-    category_id: ID!
-    name: String
+    averageRentalCount(rating: String): [AverageRentalCount]
   }
 
   type GenreCount {
-  genre: String!
-  count: Int!
-}
+    genre: String!
+    count: Int!
+  }
+
+  type AverageRentalCount {
+    genre: String
+    averageRentalCount: Float
+  }
   `

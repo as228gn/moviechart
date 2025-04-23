@@ -41,7 +41,16 @@ export class MovieController {
     }
   }
 
-  async getTitles(filter = {}) {
+  /**
+   * Retrieves a list of movie titles from the database, optionally filtered by genre and/or rating. The titles are sorted alphabetically.
+   *
+   * @param {object} [filter={}] - Optional filters to apply to the movie query.
+   * @param {string} [filter.genre] - The genre to filter movies by (e.g., "Action", "Comedy"). Use "All" or omit to disable this filter.
+   * @param {string} [filter.rating] - The rating to filter movies by (e.g., "PG", "R"). Use "All" or omit to disable this filter.
+   * @returns {Promise<string[]>} A promise that resolves to an array of movie titles (strings).
+   * @throws {Error} Throws an error if the database query fails.
+   */
+  async getTitles (filter = {}) {
     try {
       let query = `
         SELECT f.title
@@ -76,52 +85,39 @@ export class MovieController {
     }
   }
 
-  /**
-   * A query that gives you the genre for a specific movie.
-   *
-   * @param {number} id - The id of the movie to retrieve the genre from.
-   * @returns {string} - The genre of the movie.
-   */
-  async getGenreForMovie (id) {
+  async getAverageRentalCount (filter = {}) {
     try {
-      const [result] = await db.query(`
-        SELECT c.category_id, c.name
-        FROM category c
-        JOIN film_category fc ON fc.category_id = c.category_id
-        WHERE fc.film_id = ?`, [id])
-      const genre = result[0]
-      return genre
-    } catch (error) {
-      throw new Error('Could not fetch genre: ' + error.message)
-    }
-  }
+      let query = `
+        SELECT 
+          genre,
+          AVG(rental_count) AS average_rental_count
+        FROM (
+          SELECT 
+            c.name AS genre,
+            COUNT(r.rental_id) AS rental_count
+          FROM sakila.film f
+          JOIN film_category fc ON f.film_id = fc.film_id
+          JOIN category c ON fc.category_id = c.category_id
+          JOIN inventory i ON f.film_id = i.film_id
+          JOIN rental r ON i.inventory_id = r.inventory_id
+      `
+      const params = []
 
-  /**
-   * A query that gives you the rental count for a specific movie..
-   *
-   * @param {number} id - The id of the film to retrieve the rental count from.
-   * @returns {number} - The rental count.
-   */
-  async getRentalCountForMovie (id) {
-    try {
-      const query = `
-        SELECT f.film_id, f.title, COUNT(r.rental_id) AS rental_count
-        FROM film f
-        JOIN inventory i ON f.film_id = i.film_id
-        JOIN rental r ON i.inventory_id = r.inventory_id
-        WHERE f.film_id = ?
-        GROUP BY f.film_id, f.title;
+      if (filter.rating && filter.rating !== 'All') {
+        query += ' WHERE f.rating = ?'
+        params.push(filter.rating)
+      }
+
+      query += `
+          GROUP BY f.film_id, c.name
+        ) AS rental_counts
+        GROUP BY genre
       `
 
-      const [rows] = await db.query(query, [id])
-
-      if (rows.length > 0) {
-        return rows[0].rental_count
-      } else {
-        return 0
-      }
+      const [movies] = await db.query(query, params)
+      return movies
     } catch (error) {
-      throw new Error('Error fetching rental count: ' + error.message)
+      throw new Error('Could not fetch average rental count by genre: ' + error.message)
     }
   }
 }
