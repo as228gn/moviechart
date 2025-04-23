@@ -61,7 +61,41 @@ async function fetchMovieAndGenre (rating) {
     ]
 
     // eslint-disable-next-line no-undef
-    Plotly.newPlot('barChart', chartData)
+    Plotly.newPlot('barChart', chartData, {
+      title: {
+        text: 'Movies by Genre',
+        font: {
+          family: 'monospace',
+          size: 20,
+          color: 'black'
+        }
+      },
+      xaxis: {
+        title: {
+          text: 'Genre',
+          font: {
+            family: 'monospace',
+            size: 16,
+            color: 'black'
+          }
+        }
+      },
+      yaxis: {
+        title: {
+          text: 'Number of Movies',
+          font: {
+            family: 'monospace',
+            size: 16,
+            color: 'black'
+          }
+        }
+      },
+      font: {
+        family: 'monospace',
+        size: 14,
+        color: 'black'
+      }
+    })
 
     document.getElementById('barChart').on('plotly_click', function (data) {
       const point = data.points[0]
@@ -81,7 +115,7 @@ async function fetchMovieAndGenre (rating) {
  * @param {number} minAverage - Minimum average rental count required for a genre to be included in the chart.
  * @returns {Promise<void>} A Promise that resolves when the bubble chart has been rendered.
  */
-async function fetchAverageRentalCount(rating, minAverage) {
+async function fetchAverageRentalCount (rating, minAverage) {
   const movieList = document.getElementById('movieList')
   movieList.textContent = ''
 
@@ -131,9 +165,39 @@ async function fetchAverageRentalCount(rating, minAverage) {
 
     // eslint-disable-next-line no-undef
     Plotly.newPlot('bubble', bubbleData, {
-      title: 'Average Rental Count per Genre',
-      xaxis: { title: 'Genre' },
-      yaxis: { title: 'Average Rental Count' }
+      title: {
+        text: 'Average Rental Count per Genre',
+        font: {
+          family: 'monospace',
+          size: 20,
+          color: 'black'
+        }
+      },
+      xaxis: {
+        title: {
+          text: 'Genre',
+          font: {
+            family: 'monospace',
+            size: 16,
+            color: 'black'
+          }
+        }
+      },
+      yaxis: {
+        title: {
+          text: 'Average Rental Count',
+          font: {
+            family: 'monospace',
+            size: 16,
+            color: 'black'
+          }
+        }
+      },
+      font: {
+        family: 'monospace',
+        size: 14,
+        color: 'black'
+      }
     })
 
     document.getElementById('bubble').on('plotly_click', function (data) {
@@ -184,7 +248,7 @@ async function getTitles (genre, rating) {
  *
  * @param {string[]} movieTitles - An array of movie titles to be displayed. Each title will be added as a separate list item in the movie list.
  */
-function displayMovieTitles(movieTitles) {
+function displayMovieTitles (movieTitles) {
   const movieList = document.getElementById('movieList')
   movieList.textContent = ''
 
