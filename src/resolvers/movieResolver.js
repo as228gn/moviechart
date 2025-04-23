@@ -1,15 +1,6 @@
 import { MovieController } from '../controllers/MovieController.js'
 const controller = new MovieController()
 
-/**
- * GraphQL resolvers for movie-related queries and mutations.
- *
- * @constant {object} movieResolver - The resolver object for movie queries and mutations.
- * @property {object} Query - Contains query resolvers for fetching movie data.
- * @property {Function} Query.movies - Resolves the query to fetch movies based on optional filters (genreName, rating).
- * @property {Function} Query.movie - Resolves the query to fetch a single movie by its ID.
- * @property {Function} Query.actors - Resolves the query to fetch all actors.
- */
 export const movieResolver = {
   Query: {
 
@@ -71,6 +62,15 @@ export const movieResolver = {
       }
     },
 
+    /**
+     * GraphQL resolver for fetching the average rental count per genre.
+     *
+     * @param {object} _ - Unused parent resolver parameter (standard in GraphQL).
+     * @param {object} args - Resolver arguments.
+     * @param {string} [args.rating] - Optional movie rating filter (e.g., "PG", "R", etc.). If omitted or set to "All", no rating filter is applied.
+     * @returns {Promise<object[]>} A Promise that resolves to an array of objects.
+     * @throws {Error} If fetching data fails, an error is thrown and logged to the console.
+     */
     averageRentalCount: async (_, { rating }) => {
       try {
         const filter = {}

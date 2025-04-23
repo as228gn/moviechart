@@ -85,6 +85,14 @@ export class MovieController {
     }
   }
 
+  /**
+   * Retrieves the average rental count for each movie genre from the database.
+   *
+   * @param {object} [filter={}] - Optional filter object.
+   * @param {string} [filter.rating] - Filter to include only movies with the specified rating (e.g., "PG", "R", etc.). If not provided or set to "All", no rating filter is applied.
+   * @returns {Promise<object[]>} A Promise that resolves to an array of objects, each containing:
+   * @throws {Error} If the database query fails, an error is thrown with a descriptive message.
+   */
   async getAverageRentalCount (filter = {}) {
     try {
       let query = `
