@@ -98,7 +98,7 @@ export class MovieController {
       let query = `
         SELECT 
           genre,
-          AVG(rental_count) AS average_rental_count
+          ROUND(AVG(rental_count), 1) AS average_rental_count
         FROM (
           SELECT 
             c.name AS genre,

@@ -140,6 +140,7 @@ async function fetchAverageRentalCount (rating, minAverage) {
       console.error('GraphQL Error:', data.errors)
       return
     }
+
     const filtered = data.averageRentalCount.filter(item => item.averageRentalCount >= minAverage)
 
     const genres = filtered.map(item => item.genre ?? 'Unknown')
