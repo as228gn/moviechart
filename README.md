@@ -1,29 +1,29 @@
-# Project Title
-
-Replace this with the name of your project. It should be a brief and catchy title that accurately represents your application.
+# Movie Explorer
 
 ## Project Description
 
-Write a brief description of your application here. The description should provide an overview of the application features, its purpose, and how it achieves the objective of the assignment. Discuss the dataset used and why it was chosen.
+This application is designed to assist customers of a fictional online movie rental store in choosing movies to watch. It provides an interactive visualization that allows users to filter movies by rating and explore genre popularity based on average rental counts. Users can click on bars and bubbles within the visualization to view specific movies within a selected rating and genre.  
 
-Describe the insights you are providing through your interactive visualization. Highlight the questions this project is intended to answer or the insights you aim to provide.
+I chose to use my graphql as a backend and it was using the sakila testdata so I continued to use that data set.
 
 ## Core Technologies
 
-Include a list of the main technologies used in your project. Explain why you decided to use these technologies and what benefits they have provided in accomplishing your goals. This can include the backend framework, data analysis and processing tools, data visualization library, frontend technology, and deployment platform.
+- Node  
+- Express  
+- Apollo  
+- Javascript  
+- MySQL  
+- Azure  
+- Plotly  
+- Bootstrap  
+- Csclod server  
+
+Because I chose to use my graphql-API I already had a start with Node, Express, Apollo, Javascript, MySQL and Azure. I looked through the different options on how to visualize data and decided to use Plotly becasue it worked well with javascript. I deployed it on the server I recieved from the school because I´ve been using it for a while now and really started to understand how it works.
 
 ## How to Use
 
-This section should contain instructions for how to use your application. Explain the controls used in your visualization and how to interact with it to uncover different insights. Providing screenshots and/or gifs can greatly help users understand how to use your application.
+This is a single-page application that allows users to filter movies by rating in a dropdown meny or explore average rental counts using a slider. By clicking on any bar or bubble, users can view a list of movies within that genre, based on their selected filters.
 
 ## Link to the Deployed Application
 
-Include a link to the deployed application. The application should be hosted on a platform that allows public access.
-
-## Additional features
-
-Explain how you have addressed the assignment requirements. If you've added any custom functionality, discuss them in this section and link to the specific issues you have closed.
-
-## Acknowledgements
-
-Include a list of resources you found helpful, attributions, or shoutouts here.
+[Movie Explorer](https://cscloud6-21.lnu.se/moviechart/)
