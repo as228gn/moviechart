@@ -9,19 +9,13 @@ export const movieResolver = {
      *
      * @param {object} _ - The parent resolver (not used).
      * @param {object} args - The arguments passed to the resolver.
-     * @param {string} [args.rating] - Optional rating filter (e.g., "PG", "R", "G"). If omitted, includes all ratings.
      * @returns {Promise<Array<{ genre: string, count: number }>>} A promise that resolves to an array of objects, each containing a movie genre and the count of movies in that genre.
      * @throws {Error} Throws an error if the data fetch fails.
      */
-    movieCountsByGenre: async (_, { rating }) => {
+    movieCountsByGenre: async (_, args) => {
       try {
-        const filter = {}
-        if (rating) {
-          filter.rating = rating
-        }
-        const movies = await controller.getMovies(filter)
+        const movies = await controller.getMovies(args)
 
-        // Returnera resultatet från getMovies
         return movies.map(movie => ({
           genre: movie.genre,
           count: movie.count
@@ -37,24 +31,12 @@ export const movieResolver = {
      *
      * @param {object} _ - The parent resolver (unused in this context).
      * @param {object} args - The arguments provided to the resolver.
-     * @param {string} [args.rating] - Optional filter for movie rating (e.g., "PG", "R"). If "All" or not provided, no rating filter is applied.
-     * @param {string} [args.genre] - Optional filter for movie genre (e.g., "Action", "Comedy"). If "All" or not provided, no genre filter is applied.
      * @returns {Promise<string[]>} A promise that resolves to an array of movie title strings.
      * @throws {Error} Throws an error if the titles could not be fetched.
      */
-    movieTitles: async (_, { rating, genre }) => {
+    movieTitles: async (_, args) => {
       try {
-        const filter = {}
-
-        if (rating && rating !== 'All') {
-          filter.rating = rating
-        }
-
-        if (genre && genre !== 'All') {
-          filter.genre = genre
-        }
-
-        const movies = await controller.getTitles(filter)
+        const movies = await controller.getTitles(args)
         return movies
       } catch (error) {
         console.error(error)
@@ -67,18 +49,12 @@ export const movieResolver = {
      *
      * @param {object} _ - Unused parent resolver parameter (standard in GraphQL).
      * @param {object} args - Resolver arguments.
-     * @param {string} [args.rating] - Optional movie rating filter (e.g., "PG", "R", etc.). If omitted or set to "All", no rating filter is applied.
      * @returns {Promise<object[]>} A Promise that resolves to an array of objects.
      * @throws {Error} If fetching data fails, an error is thrown and logged to the console.
      */
-    averageRentalCount: async (_, { rating }) => {
+    averageRentalCount: async (_, args) => {
       try {
-        const filter = {}
-        if (rating && rating !== 'All') {
-          filter.rating = rating
-        }
-
-        const averageRentalCounts = await controller.getAverageRentalCount(filter)
+        const averageRentalCounts = await controller.getAverageRentalCount(args)
 
         return averageRentalCounts.map(item => ({
           genre: item.genre,

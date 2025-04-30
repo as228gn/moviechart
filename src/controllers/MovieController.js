@@ -25,7 +25,7 @@ export class MovieController {
         JOIN category c ON fc.category_id = c.category_id
       `
       const params = []
-      if (filter.rating && filter.rating !== 'All') {
+      if (filter.rating) {
         query += '  WHERE f.rating = ?'
         params.push(filter.rating)
       }
@@ -45,8 +45,8 @@ export class MovieController {
    * Retrieves a list of movie titles from the database, optionally filtered by genre and/or rating. The titles are sorted alphabetically.
    *
    * @param {object} [filter={}] - Optional filters to apply to the movie query.
-   * @param {string} [filter.genre] - The genre to filter movies by (e.g., "Action", "Comedy"). Use "All" or omit to disable this filter.
-   * @param {string} [filter.rating] - The rating to filter movies by (e.g., "PG", "R"). Use "All" or omit to disable this filter.
+   * @param {string} [filter.genre] - The genre to filter movies by (e.g., "Action", "Comedy").
+   * @param {string} [filter.rating] - The rating to filter movies by (e.g., "PG", "R").
    * @returns {Promise<string[]>} A promise that resolves to an array of movie titles (strings).
    * @throws {Error} Throws an error if the database query fails.
    */
@@ -62,12 +62,12 @@ export class MovieController {
       const conditions = []
       const params = []
 
-      if (filter.genre && filter.genre !== 'All') {
+      if (filter.genre) {
         conditions.push('c.name = ?')
         params.push(filter.genre)
       }
 
-      if (filter.rating && filter.rating !== 'All') {
+      if (filter.rating) {
         conditions.push('f.rating = ?')
         params.push(filter.rating)
       }
@@ -89,7 +89,7 @@ export class MovieController {
    * Retrieves the average rental count for each movie genre from the database.
    *
    * @param {object} [filter={}] - Optional filter object.
-   * @param {string} [filter.rating] - Filter to include only movies with the specified rating (e.g., "PG", "R", etc.). If not provided or set to "All", no rating filter is applied.
+   * @param {string} [filter.rating] - Filter to include only movies with the specified rating (e.g., "PG", "R", etc.).
    * @returns {Promise<object[]>} A Promise that resolves to an array of objects, each containing:
    * @throws {Error} If the database query fails, an error is thrown with a descriptive message.
    */
@@ -111,7 +111,7 @@ export class MovieController {
       `
       const params = []
 
-      if (filter.rating && filter.rating !== 'All') {
+      if (filter.rating) {
         query += ' WHERE f.rating = ?'
         params.push(filter.rating)
       }
