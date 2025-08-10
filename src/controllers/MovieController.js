@@ -45,8 +45,6 @@ export class MovieController {
    * Retrieves a list of movie titles from the database, optionally filtered by genre and/or rating. The titles are sorted alphabetically.
    *
    * @param {object} [filter={}] - Optional filters to apply to the movie query.
-   * @param {string} [filter.genre] - The genre to filter movies by (e.g., "Action", "Comedy").
-   * @param {string} [filter.rating] - The rating to filter movies by (e.g., "PG", "R").
    * @returns {Promise<string[]>} A promise that resolves to an array of movie titles (strings).
    * @throws {Error} Throws an error if the database query fails.
    */
