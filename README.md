@@ -26,5 +26,3 @@ Because I chose to use my graphql-API I already had a start with Node, Express, 
 ## How to Use
 
 This is a single-page application that allows users to filter movies by rating in a dropdown meny or explore average rental counts using a slider. By clicking on any bar or bubble, users can view a list of movies within that genre, based on their selected filters.
-
-## Link to the Deployed Application
